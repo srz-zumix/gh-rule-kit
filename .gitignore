@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+# Built gh extension
+gh-rule-kit
+
 # Test binary, built with `go test -c`
 *.test
 
