@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/cli/cli/v2/pkg/cmdutil"
@@ -42,7 +43,7 @@ func NewImportCmd() *cobra.Command {
 			var jsonData []byte
 			if input == "-" {
 				// Read from stdin
-				jsonData, err = os.ReadFile("/dev/stdin")
+				jsonData, err = io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("failed to read from stdin: %w", err)
 				}
