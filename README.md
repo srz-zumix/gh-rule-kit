@@ -89,3 +89,67 @@ Delete a specific repository ruleset by its ID. If repo is not specified, the cu
 **Options:**
 
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+### Organization Rulesets
+
+#### List organization rulesets
+
+```sh
+gh rule-kit org list --org <org>
+```
+
+List all rulesets for an organization. If org is not specified, the current repository's organization will be used.
+
+**Options:**
+
+- `-O, --org <org>`: The organization name (required)
+
+#### Get an organization ruleset
+
+```sh
+gh rule-kit org get <ruleset-id> --org <org>
+```
+
+Get detailed information about a specific organization ruleset by its ID. If org is not specified, the current repository's organization will be used.
+
+**Options:**
+
+- `-O, --org <org>`: The organization name (required)
+
+#### Export an organization ruleset to JSON file
+
+```sh
+gh rule-kit org export <ruleset-id> --org <org> [--output <output>]
+```
+
+Export a specific organization ruleset by its ID to a JSON file. If org is not specified, the current repository's organization will be used. The exported JSON can be used for backup or to import into another organization.
+
+**Options:**
+
+- `-o, --output <output>`: Output file path (optional, defaults to stdout)
+- `-O, --org <org>`: The organization name (required)
+
+#### Import an organization ruleset from JSON file
+
+```sh
+gh rule-kit org import <input> --org <org> [--create-if-none]
+```
+
+Import an organization ruleset from a JSON file. If org is not specified, the current repository's organization will be used. Use --create-if-none flag to create a new ruleset if it does not exist.
+
+**Options:**
+
+- `-c, --create-if-none`: Create a new ruleset if it does not exist (default: false)
+- `-O, --org <org>`: The organization name (required)
+
+#### Delete an organization ruleset
+
+```sh
+gh rule-kit org delete <ruleset-id> --org <org>
+```
+
+Delete a specific organization ruleset by its ID. If org is not specified, the current repository's organization will be used.
+
+**Options:**
+
+- `-O, --org <org>`: The organization name (required)

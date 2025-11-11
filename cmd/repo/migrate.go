@@ -83,7 +83,7 @@ func NewMigrateCmd() *cobra.Command {
 				logger.Info("Migrating ruleset", "id", rulesetID)
 
 				// Export ruleset from source (includes team information for actor mapping)
-				migrateConfig, err := gh.ExportMigrateRepositoryRuleset(ctx, srcClient, srcRepository, rulesetID)
+				migrateConfig, err := gh.ExportMigrateRuleset(ctx, srcClient, srcRepository, rulesetID)
 				if err != nil {
 					logger.Error("Failed to export ruleset", "id", rulesetID, "error", err)
 					continue
@@ -96,7 +96,7 @@ func NewMigrateCmd() *cobra.Command {
 					}
 					return nil
 				}
-				createdRuleset, err := gh.ImportMigrateRepositoryRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr())
+				createdRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr())
 				if err != nil {
 					logger.Error("Failed to import ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
 					continue

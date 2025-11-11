@@ -1,4 +1,4 @@
-package repo
+package org
 
 import (
 	"context"
@@ -13,16 +13,15 @@ import (
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
 )
 
-// NewExportCmd returns a new cobra.Command for exporting a repository ruleset
+// NewExportCmd returns a new cobra.Command for exporting an organization ruleset
 func NewExportCmd() *cobra.Command {
-	var repo string
+	var owner string
 	var output string
-	var includesParent bool
 
 	cmd := &cobra.Command{
 		Use:   "export <ruleset-id>",
-		Short: "Export a repository ruleset to JSON file",
-		Long:  `Export a specific repository ruleset by its ID to a JSON file. If repo is not specified, the current repository will be used. The exported JSON can be used for backup or to import into another repository.`,
+		Short: "Export an organization ruleset to JSON file",
+		Long:  `Export a specific organization ruleset by its ID to a JSON file. If org is not specified, the current repository's organization will be used. The exported JSON can be used for backup or to import into another organization.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rulesetID, err := strconv.ParseInt(args[0], 10, 64)
@@ -30,7 +29,7 @@ func NewExportCmd() *cobra.Command {
 				return fmt.Errorf("invalid ruleset ID: %w", err)
 			}
 
-			repository, err := parser.Repository(parser.RepositoryInput(repo))
+			repository, err := parser.Repository(parser.RepositoryOwner(owner))
 			if err != nil {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
@@ -41,9 +40,9 @@ func NewExportCmd() *cobra.Command {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
-			ruleset, err := gh.GetRepositoryRuleset(ctx, client, repository, rulesetID, includesParent)
+			ruleset, err := gh.GetOrgRuleset(ctx, client, repository, rulesetID)
 			if err != nil {
-				return fmt.Errorf("failed to get repository ruleset: %w", err)
+				return fmt.Errorf("failed to get organization ruleset: %w", err)
 			}
 
 			config := gh.ExportRuleset(ruleset)
@@ -71,9 +70,8 @@ func NewExportCmd() *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
+	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	f.StringVarP(&output, "output", "o", "", "Output file path (default: stdout)")
-	f.BoolVarP(&includesParent, "includes-parent", "p", false, "Include parent rulesets")
 
 	return cmd
 }
