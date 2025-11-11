@@ -1,4 +1,4 @@
-package repo
+package org
 
 import (
 	"context"
@@ -17,22 +17,22 @@ type ImportOptions struct {
 	Exporter cmdutil.Exporter
 }
 
-// NewImportCmd returns a new cobra.Command for importing a repository ruleset
+// NewImportCmd returns a new cobra.Command for importing an organization ruleset
 func NewImportCmd() *cobra.Command {
 	var opts ImportOptions
-	var repo string
+	var owner string
 	var input string
 	var createIfNotExists bool
 
 	cmd := &cobra.Command{
 		Use:   "import <input>",
-		Short: "Import a repository ruleset from JSON file",
-		Long:  `Import a repository ruleset from a JSON file. If repo is not specified, the current repository will be used. Use --update flag with --ruleset-id to update an existing ruleset.`,
+		Short: "Import an organization ruleset from JSON file",
+		Long:  `Import an organization ruleset from a JSON file. If org is not specified, the current repository's organization will be used. Use --create-if-none flag to create a new ruleset if it does not exist.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			input = args[0]
 
-			repository, err := parser.Repository(parser.RepositoryInput(repo))
+			repository, err := parser.Repository(parser.RepositoryOwner(owner))
 			if err != nil {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
@@ -56,9 +56,10 @@ func NewImportCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
-			found, err := gh.FindRepositoryRuleset(ctx, client, repository, *config.ID, config.Name, false)
+
+			found, err := gh.FindOrgRuleset(ctx, client, repository, *config.ID, config.Name)
 			if err != nil {
-				return fmt.Errorf("failed to find repository ruleset: %w", err)
+				return fmt.Errorf("failed to find organization ruleset: %w", err)
 			}
 			if found == nil && !createIfNotExists {
 				return fmt.Errorf("ruleset not found with ID %d or name '%s'", *config.ID, config.Name)
@@ -70,18 +71,18 @@ func NewImportCmd() *cobra.Command {
 			resultRuleset := found // nolint
 			if found == nil && createIfNotExists {
 				// Create new ruleset
-				resultRuleset, err = gh.CreateRepositoryRuleset(ctx, client, repository, ruleset)
+				resultRuleset, err = gh.CreateOrgRuleset(ctx, client, repository, ruleset)
 				if err != nil {
-					return fmt.Errorf("failed to create repository ruleset: %w", err)
+					return fmt.Errorf("failed to create organization ruleset: %w", err)
 				}
-				logger.Info("Successfully created ruleset.", "rulesetID", *resultRuleset.ID, "rulesetName", resultRuleset.Name, "repository", parser.GetRepositoryFullName(repository))
+				logger.Info("Successfully created ruleset.", "rulesetID", *resultRuleset.ID, "rulesetName", resultRuleset.Name, "organization", repository.Owner)
 			} else {
 				// Update existing ruleset
-				resultRuleset, err = gh.UpdateRepositoryRuleset(ctx, client, repository, *found.ID, ruleset)
+				resultRuleset, err = gh.UpdateOrgRuleset(ctx, client, repository, *found.ID, ruleset)
 				if err != nil {
-					return fmt.Errorf("failed to update repository ruleset: %w", err)
+					return fmt.Errorf("failed to update organization ruleset: %w", err)
 				}
-				logger.Info("Successfully updated ruleset.", "rulesetID", *resultRuleset.ID, "rulesetName", resultRuleset.Name, "repository", parser.GetRepositoryFullName(repository))
+				logger.Info("Successfully updated ruleset.", "rulesetID", *resultRuleset.ID, "rulesetName", resultRuleset.Name, "organization", repository.Owner)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
@@ -91,7 +92,7 @@ func NewImportCmd() *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
+	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	f.BoolVarP(&createIfNotExists, "create-if-none", "c", false, "Create a new ruleset if it does not exist")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
