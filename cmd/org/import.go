@@ -68,7 +68,7 @@ func NewImportCmd() *cobra.Command {
 			// Convert to RepositoryRuleset
 			ruleset := gh.ImportRuleset(config, found)
 
-			resultRuleset := found
+			resultRuleset := found // nolint
 			if found == nil && createIfNotExists {
 				// Create new ruleset
 				resultRuleset, err = gh.CreateOrgRuleset(ctx, client, repository, ruleset)
