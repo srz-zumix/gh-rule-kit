@@ -24,16 +24,16 @@ func NewMigrateCmd() *cobra.Command {
 			srcOrg := args[0]
 			dstOrg := args[1]
 
-			// Parse source repository
+			// Parse source organization
 			srcRepository, err := parser.Repository(parser.RepositoryOwnerWithHost(srcOrg))
 			if err != nil {
-				return fmt.Errorf("error parsing source repository: %w", err)
+				return fmt.Errorf("error parsing source organization: %w", err)
 			}
 
-			// Parse destination repository
+			// Parse destination organization
 			dstRepository, err := parser.Repository(parser.RepositoryOwnerWithHost(dstOrg))
 			if err != nil {
-				return fmt.Errorf("error parsing destination repository: %w", err)
+				return fmt.Errorf("error parsing destination organization: %w", err)
 			}
 
 			ctx := context.Background()
