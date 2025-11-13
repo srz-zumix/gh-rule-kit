@@ -18,7 +18,7 @@ func NewMigrateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]",
 		Short: "Migrate organization rulesets to another organization",
-		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified with --org flag, destination organization is specified as the first argument.`,
+		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified as the first argument, destination organization is specified as the second argument.`,
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			srcOrg := args[0]
