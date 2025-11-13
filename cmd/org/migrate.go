@@ -1,4 +1,4 @@
-package repo
+package org
 
 import (
 	"context"
@@ -11,27 +11,29 @@ import (
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
 )
 
-// NewMigrateCmd returns a new cobra.Command for migrating repository rulesets
+// NewMigrateCmd returns a new cobra.Command for migrating organization rulesets
 func NewMigrateCmd() *cobra.Command {
-	var srcRepo string
 	var gitHubActionsAppID int64
 
 	cmd := &cobra.Command{
-		Use:   "migrate <dst-repo> [ruleset-id...]",
-		Short: "Migrate repository rulesets to another repository",
-		Long:  `Migrate repository rulesets from source repository to destination repository. If ruleset IDs are not specified, all rulesets will be migrated. Source repository is specified with --repo flag, destination repository is specified as the first argument.`,
-		Args:  cobra.MinimumNArgs(1),
+		Use:   "migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]",
+		Short: "Migrate organization rulesets to another organization",
+		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified as the first argument, destination organization is specified as the second argument.`,
+		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Parse destination repository
-			dstRepository, err := parser.Repository(parser.RepositoryInput(args[0]))
+			srcOrg := args[0]
+			dstOrg := args[1]
+
+			// Parse source organization
+			srcRepository, err := parser.Repository(parser.RepositoryOwnerWithHost(srcOrg))
 			if err != nil {
-				return fmt.Errorf("error parsing destination repository: %w", err)
+				return fmt.Errorf("error parsing source organization: %w", err)
 			}
 
-			// Parse source repository
-			srcRepository, err := parser.Repository(parser.RepositoryInput(srcRepo))
+			// Parse destination organization
+			dstRepository, err := parser.Repository(parser.RepositoryOwnerWithHost(dstOrg))
 			if err != nil {
-				return fmt.Errorf("error parsing source repository: %w", err)
+				return fmt.Errorf("error parsing destination organization: %w", err)
 			}
 
 			ctx := context.Background()
@@ -39,18 +41,18 @@ func NewMigrateCmd() *cobra.Command {
 			// Create clients for source and destination
 			srcClient, err := gh.NewGitHubClientWithRepo(srcRepository)
 			if err != nil {
-				return fmt.Errorf("failed to create GitHub client for source repository: %w", err)
+				return fmt.Errorf("failed to create GitHub client for source organization: %w", err)
 			}
 
 			dstClient, err := gh.NewGitHubClientWithRepo(dstRepository)
 			if err != nil {
-				return fmt.Errorf("failed to create GitHub client for destination repository: %w", err)
+				return fmt.Errorf("failed to create GitHub client for destination organization: %w", err)
 			}
 
 			var rulesetIDs []int64
-			if len(args) > 1 {
+			if len(args) > 2 {
 				// Parse specified ruleset IDs
-				for _, idStr := range args[1:] {
+				for _, idStr := range args[2:] {
 					id, err := strconv.ParseInt(idStr, 10, 64)
 					if err != nil {
 						return fmt.Errorf("invalid ruleset ID '%s': %w", idStr, err)
@@ -58,10 +60,10 @@ func NewMigrateCmd() *cobra.Command {
 					rulesetIDs = append(rulesetIDs, id)
 				}
 			} else {
-				// Get all rulesets from source repository
-				rulesets, err := gh.ListRepositoryRulesets(ctx, srcClient, srcRepository, false)
+				// Get all rulesets from source organization
+				rulesets, err := gh.ListOrgRulesets(ctx, srcClient, srcRepository)
 				if err != nil {
-					return fmt.Errorf("failed to list repository rulesets: %w", err)
+					return fmt.Errorf("failed to list organization rulesets: %w", err)
 				}
 				for _, ruleset := range rulesets {
 					if ruleset.ID != nil {
@@ -75,7 +77,7 @@ func NewMigrateCmd() *cobra.Command {
 				return nil
 			}
 
-			logger.Info("Starting migration", "source", fmt.Sprintf("%s/%s", srcRepository.Owner, srcRepository.Name), "destination", fmt.Sprintf("%s/%s", dstRepository.Owner, dstRepository.Name), "count", len(rulesetIDs))
+			logger.Info("Starting migration", "source", srcRepository.Owner, "destination", dstRepository.Owner, "count", len(rulesetIDs))
 
 			var gitHubActionsAppIDPtr *int64
 			if gitHubActionsAppID != 0 {
@@ -116,7 +118,6 @@ func NewMigrateCmd() *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	f.StringVarP(&srcRepo, "repo", "R", "", "The source repository in the format 'owner/repo'")
 	f.Int64Var(&gitHubActionsAppID, "github-actions-app-id", 0, "The GitHub Actions App ID for integration mapping")
 
 	return cmd

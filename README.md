@@ -142,6 +142,18 @@ Import an organization ruleset from a JSON file. If org is not specified, the cu
 - `-c, --create-if-none`: Create a new ruleset if it does not exist (default: false)
 - `--owner <owner>`: The organization name (optional, defaults to current repository's organization)
 
+#### Migrate organization rulesets to another organization
+
+```sh
+gh rule-kit org migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]
+```
+
+Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated.
+
+**Options:**
+
+- `--github-actions-app-id <id>`: The GitHub Actions App ID for integration mapping (optional, default: 0)
+
 #### Delete an organization ruleset
 
 ```sh
