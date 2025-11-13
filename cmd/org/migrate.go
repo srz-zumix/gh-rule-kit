@@ -79,6 +79,11 @@ func NewMigrateCmd() *cobra.Command {
 
 			logger.Info("Starting migration", "source", srcRepository.Owner, "destination", dstRepository.Owner, "count", len(rulesetIDs))
 
+			var gitHubActionsAppIDPtr *int64
+			if gitHubActionsAppID != 0 {
+				gitHubActionsAppIDPtr = &gitHubActionsAppID
+			}
+
 			// Migrate each ruleset
 			successCount := 0
 			for _, rulesetID := range rulesetIDs {
@@ -92,13 +97,7 @@ func NewMigrateCmd() *cobra.Command {
 				}
 
 				// Import ruleset to destination (handles team actor ID mapping)
-				gitHubActionsAppIDPtr := func() *int64 {
-					if gitHubActionsAppID != 0 {
-						return &gitHubActionsAppID
-					}
-					return nil
-				}
-				createdRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr())
+				createdRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr)
 				if err != nil {
 					logger.Error("Failed to import ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
 					continue
