@@ -145,7 +145,7 @@ Import an organization ruleset from a JSON file. If org is not specified, the cu
 #### Migrate organization rulesets to another organization
 
 ```sh
-gh rule-kit org migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...] [--owner <owner>]
+gh rule-kit org migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]
 ```
 
 Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated.
