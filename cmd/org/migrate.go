@@ -41,12 +41,12 @@ func NewMigrateCmd() *cobra.Command {
 			// Create clients for source and destination
 			srcClient, err := gh.NewGitHubClientWithRepo(srcRepository)
 			if err != nil {
-				return fmt.Errorf("failed to create GitHub client for source repository: %w", err)
+				return fmt.Errorf("failed to create GitHub client for source organization: %w", err)
 			}
 
 			dstClient, err := gh.NewGitHubClientWithRepo(dstRepository)
 			if err != nil {
-				return fmt.Errorf("failed to create GitHub client for destination repository: %w", err)
+				return fmt.Errorf("failed to create GitHub client for destination organization: %w", err)
 			}
 
 			var rulesetIDs []int64
