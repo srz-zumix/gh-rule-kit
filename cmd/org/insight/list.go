@@ -62,7 +62,7 @@ func NewListCmd() *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	f.StringVar(&owner, "owner", "", "The organization name")
+	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	f.StringVar(&ref, "ref", "", "Filter by ref name (e.g., 'main', 'refs/heads/main')")
 	f.StringVar(&timePeriod, "time-period", "", "Filter by time period (e.g., 'hour', 'day', 'week', 'month')")
 	f.StringVar(&actorName, "actor-name", "", "Filter by actor name")
