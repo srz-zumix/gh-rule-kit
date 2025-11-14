@@ -55,7 +55,7 @@ func NewGetCmd() *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	f.StringVar(&owner, "owner", "", "The organization name")
+	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd
