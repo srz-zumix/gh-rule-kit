@@ -90,6 +90,40 @@ Delete a specific repository ruleset by its ID. If repo is not specified, the cu
 
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
+### Repository Rule Suite Insights
+
+#### List repository rule suites
+
+```sh
+gh rule-kit repo insight list [-R <repo>] [--ref <ref>] [--time-period <period>] [--actor-name <name>] [--result <result>]
+```
+
+List all rule suites for a repository. If repo is not specified, the current repository will be used. Rule suites represent evaluations of repository rules.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+- `--ref <ref>`: Filter by ref name (e.g., 'main', 'refs/heads/main') (optional)
+- `--time-period <period>`: Filter by time period (e.g., 'hour', 'day', 'week', 'month') (optional)
+- `--actor-name <name>`: Filter by actor name (optional)
+- `--result <result>`: Filter by rule suite result (e.g., 'pass', 'fail', 'bypass') (optional)
+
+**Note:** This feature requires the Rule Suites API which is not yet fully implemented in go-github v73. The command structure is prepared for future implementation.
+
+#### Get a repository rule suite
+
+```sh
+gh rule-kit repo insight get <rule-suite-id> [-R <repo>]
+```
+
+Get detailed information about a specific repository rule suite by its ID. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+**Note:** This feature requires the Rule Suites API which is not yet fully implemented in go-github v73. The command structure is prepared for future implementation.
+
 ### Organization Rulesets
 
 #### List organization rulesets
@@ -165,3 +199,38 @@ Delete a specific organization ruleset by its ID. If org is not specified, the c
 **Options:**
 
 - `--owner <owner>`: The organization name (optional, defaults to current repository's organization)
+
+### Organization Rule Suite Insights
+
+#### List organization rule suites
+
+```sh
+gh rule-kit org insight list [--owner <owner>] [--ref <ref>] [--time-period <period>] [--actor-name <name>] [--result <result>]
+```
+
+List all rule suites for an organization. If org is not specified, the current repository's organization will be used. Rule suites represent evaluations of organization rules.
+
+**Options:**
+
+- `--owner <owner>`: The organization name (optional, defaults to current repository's organization)
+- `--ref <ref>`: Filter by ref name (e.g., 'main', 'refs/heads/main') (optional)
+- `--time-period <period>`: Filter by time period (e.g., 'hour', 'day', 'week', 'month') (optional)
+- `--actor-name <name>`: Filter by actor name (optional)
+- `--result <result>`: Filter by rule suite result (e.g., 'pass', 'fail', 'bypass') (optional)
+
+**Note:** This feature requires the Rule Suites API which is not yet fully implemented in go-github v73. The command structure is prepared for future implementation.
+
+#### Get an organization rule suite
+
+```sh
+gh rule-kit org insight get <rule-suite-id> [--owner <owner>]
+```
+
+Get detailed information about a specific organization rule suite by its ID. If org is not specified, the current repository's organization will be used.
+
+**Options:**
+
+- `--owner <owner>`: The organization name (optional, defaults to current repository's organization)
+
+**Note:** This feature requires the Rule Suites API which is not yet fully implemented in go-github v73. The command structure is prepared for future implementation.
+

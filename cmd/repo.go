@@ -17,6 +17,7 @@ func NewRepoCmd() *cobra.Command {
 	cmd.AddCommand(repo.NewExportCmd())
 	cmd.AddCommand(repo.NewGetCmd())
 	cmd.AddCommand(repo.NewImportCmd())
+	cmd.AddCommand(repo.NewInsightCmd())
 	cmd.AddCommand(repo.NewListCmd())
 	cmd.AddCommand(repo.NewMigrateCmd())
 
