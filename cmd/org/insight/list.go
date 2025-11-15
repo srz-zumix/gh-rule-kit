@@ -7,7 +7,6 @@ import (
 	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
-	"github.com/srz-zumix/go-gh-extension/pkg/gh/client"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
 	"github.com/srz-zumix/go-gh-extension/pkg/render"
 )
@@ -43,7 +42,7 @@ func NewListCmd() *cobra.Command {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
-			listOpts := &client.ListRuleSuitesOptions{
+			listOpts := &gh.ListRuleSuitesOptions{
 				Ref:             ref,
 				TimePeriod:      timePeriod,
 				ActorName:       actorName,
