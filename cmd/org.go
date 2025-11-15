@@ -17,6 +17,7 @@ func NewOrgCmd() *cobra.Command {
 	cmd.AddCommand(org.NewExportCmd())
 	cmd.AddCommand(org.NewGetCmd())
 	cmd.AddCommand(org.NewImportCmd())
+	cmd.AddCommand(org.NewInsightCmd())
 	cmd.AddCommand(org.NewListCmd())
 	cmd.AddCommand(org.NewMigrateCmd())
 
