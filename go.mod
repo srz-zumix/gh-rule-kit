@@ -5,7 +5,7 @@ go 1.25.4
 require (
 	github.com/cli/cli/v2 v2.83.1
 	github.com/spf13/cobra v1.10.1
-	github.com/srz-zumix/go-gh-extension v0.2.1
+	github.com/srz-zumix/go-gh-extension v0.2.4
 )
 
 require (
