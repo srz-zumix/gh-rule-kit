@@ -8,6 +8,13 @@ gh extension of github rules api
 gh extension install srz-zumix/gh-rule-kit
 ```
 
+## Global Options
+
+All commands support the following global options:
+
+- `--read-only`: Run in read-only mode (prevent write operations). When enabled, commands that would modify resources (create, update, delete, import, migrate) will be blocked, allowing safe inspection and testing without making actual changes.
+- `-L, --log-level <level>`: Set log level: {debug|info|warn|error} (default: "info")
+
 ## Commands
 
 ### Repository Rulesets
