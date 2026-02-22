@@ -8,6 +8,14 @@ gh extension of github rules api
 gh extension install srz-zumix/gh-rule-kit
 ```
 
+## Shell Completion
+
+**Workaround Available!** While gh CLI doesn't natively support extension completion, we provide a patch script that enables it.
+
+**Prerequisites:** Before setting up gh-rule-kit completion, ensure gh CLI completion is configured for your shell. See [gh completion documentation](https://cli.github.com/manual/gh_completion) for setup instructions.
+
+For detailed installation instructions and setup for each shell, see the [Shell Completion Guide](docs/shell-completion.md).
+
 ## Global Options
 
 All commands support the following global options:
