@@ -1,4 +1,4 @@
-package org
+package branch_protection
 
 import (
 	"context"
@@ -15,19 +15,19 @@ type ListOptions struct {
 	Exporter cmdutil.Exporter
 }
 
-// NewListCmd returns a new cobra.Command for listing organization rulesets
+// NewListCmd returns a new cobra.Command for listing protected branches
 func NewListCmd() *cobra.Command {
 	var opts ListOptions
-	var owner string
+	var repo string
 
 	cmd := &cobra.Command{
 		Use:     "list",
-		Short:   "List organization rulesets",
-		Long:    `List all rulesets for an organization. If org is not specified, the current repository's organization will be used.`,
+		Short:   "List protected branches",
+		Long:    `List all protected branches for a repository. If repo is not specified, the current repository will be used.`,
 		Aliases: []string{"ls"},
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			repository, err := parser.Repository(parser.RepositoryOwner(owner))
+			repository, err := parser.Repository(parser.RepositoryInput(repo))
 			if err != nil {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
@@ -38,18 +38,18 @@ func NewListCmd() *cobra.Command {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
-			rulesets, err := gh.ListOrgRulesets(ctx, client, repository)
+			branches, err := gh.ListProtectedBranches(ctx, client, repository)
 			if err != nil {
-				return fmt.Errorf("failed to list organization rulesets: %w", err)
+				return fmt.Errorf("failed to list protected branches: %w", err)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			return renderer.RenderRepositoryRulesetsDefault(rulesets)
+			return renderer.RenderBranchProtections(branches)
 		},
 	}
 
 	f := cmd.Flags()
-	f.StringVar(&owner, "owner", "", "Specify the organization name")
+	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd
