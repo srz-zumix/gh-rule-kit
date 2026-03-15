@@ -25,32 +25,86 @@ All commands support the following global options:
 
 ## Commands
 
-### Repository Rulesets
+### Branch Protection Rules
 
-#### List repository rulesets
+#### Delete branch protection settings
 
 ```sh
-gh rule-kit repo list [-R <repo>] [-p]
+gh rule-kit repo branch-protection delete <branch> [-R <repo>]
 ```
 
-List all rulesets for a repository. If repo is not specified, the current repository will be used.
+Remove the protection settings from a branch. If repo is not specified, the current repository will be used.
 
 **Options:**
 
-- `-p, --includes-parent`: Include parent rulesets (default: false)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
-#### Get a repository ruleset
+#### Get branch protection settings
 
 ```sh
-gh rule-kit repo get <ruleset-id> [-R <repo>] [-p]
+gh rule-kit repo branch-protection get <branch> [-R <repo>]
 ```
 
-Get detailed information about a specific repository ruleset by its ID. If repo is not specified, the current repository will be used.
+Get the protection settings for a specific branch. If repo is not specified, the current repository will be used.
 
 **Options:**
 
-- `-p, --includes-parent`: Include parent rulesets (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### List protected branches
+
+```sh
+gh rule-kit repo branch-protection list [-R <repo>]
+```
+
+List all protected branches for a repository. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+### Repository Rulesets
+
+#### Convert a branch protection rule to a ruleset
+
+```sh
+gh rule-kit repo from-branch-protection <branch> [-R <repo>] [-n] [--delete]
+```
+
+Convert a branch protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
+
+The following branch protection settings are converted:
+
+| Branch Protection Setting | Ruleset Equivalent |
+|---|---|
+| Require linear history | `required_linear_history` rule |
+| Allow force pushes (disabled) | `non_fast_forward` rule |
+| Allow deletions (disabled) | `deletion` rule |
+| Block creations | `creation` rule |
+| Require signed commits | `required_signatures` rule |
+| Required status checks | `required_status_checks` rule |
+| Required pull request reviews | `pull_request` rule |
+| Require conversation resolution | `required_review_thread_resolution` (in pull_request rule) |
+| Do not include administrators | Repository Admin bypass actor |
+
+**Note:** Push-access restrictions (`Restrictions`) cannot be directly converted to rulesets and are reported as warnings.
+
+**Options:**
+
+- `--delete`: Delete the original branch protection rule after successful conversion (default: false)
+- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### Delete a repository ruleset
+
+```sh
+gh rule-kit repo delete <ruleset-id> [-R <repo>]
+```
+
+Delete a specific repository ruleset by its ID. If repo is not specified, the current repository will be used.
+
+**Options:**
+
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
 #### Export a repository ruleset to JSON file
@@ -67,6 +121,19 @@ Export a specific repository ruleset by its ID to a JSON file. If repo is not sp
 - `-o, --output <output>`: Output file path (optional, defaults to stdout)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
+#### Get a repository ruleset
+
+```sh
+gh rule-kit repo get <ruleset-id> [-R <repo>] [-p]
+```
+
+Get detailed information about a specific repository ruleset by its ID. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-p, --includes-parent`: Include parent rulesets (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
 #### Import a repository ruleset from JSON file
 
 ```sh
@@ -78,6 +145,19 @@ Import a repository ruleset from a JSON file. If repo is not specified, the curr
 **Options:**
 
 - `-c, --create-if-none`: Create a new ruleset if it does not exist (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### List repository rulesets
+
+```sh
+gh rule-kit repo list [-R <repo>] [-p]
+```
+
+List all rulesets for a repository. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-p, --includes-parent`: Include parent rulesets (default: false)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
 #### Migrate repository rulesets to another repository
@@ -92,18 +172,6 @@ Migrate repository rulesets from source repository to destination repository. If
 
 - `--github-actions-app-id <id>`: The GitHub Actions App ID for integration mapping (optional, default: 0)
 - `-R, --repo <repo>`: The source repository in the format 'owner/repo' (optional, defaults to current repository)
-
-#### Delete a repository ruleset
-
-```sh
-gh rule-kit repo delete <ruleset-id> [-R <repo>]
-```
-
-Delete a specific repository ruleset by its ID. If repo is not specified, the current repository will be used.
-
-**Options:**
-
-- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
 ### Repository Rule Suite Insights
 

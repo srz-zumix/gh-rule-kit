@@ -45,8 +45,7 @@ func NewListCmd() *cobra.Command {
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			renderer.RenderRepositoryRulesetsDefault(rulesets)
-			return nil
+			return renderer.RenderRepositoryRulesetsDefault(rulesets)
 		},
 	}
 

@@ -85,8 +85,7 @@ func NewImportCmd() *cobra.Command {
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			renderer.RenderRepositoryRuleset(resultRuleset, true)
-			return nil
+			return renderer.RenderRepositoryRuleset(resultRuleset, true)
 		},
 	}
 

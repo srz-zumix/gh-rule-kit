@@ -9,12 +9,14 @@ import (
 func NewRepoCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "repo",
-		Short: "Manage repository rulesets",
-		Long:  `Commands to manage repository rulesets`,
+		Short: "Manage repository rulesets, branch protection, and related conversions",
+		Long:  `Commands to manage repository rulesets, branch protection, and related conversions`,
 	}
 
+	cmd.AddCommand(repo.NewBranchProtectionCmd())
 	cmd.AddCommand(repo.NewDeleteCmd())
 	cmd.AddCommand(repo.NewExportCmd())
+	cmd.AddCommand(repo.NewFromBranchProtectionCmd())
 	cmd.AddCommand(repo.NewGetCmd())
 	cmd.AddCommand(repo.NewImportCmd())
 	cmd.AddCommand(repo.NewInsightCmd())

@@ -1,9 +1,8 @@
-package org
+package branch_protection
 
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
@@ -16,23 +15,20 @@ type GetOptions struct {
 	Exporter cmdutil.Exporter
 }
 
-// NewGetCmd returns a new cobra.Command for getting an organization ruleset
+// NewGetCmd returns a new cobra.Command for getting branch protection settings
 func NewGetCmd() *cobra.Command {
 	var opts GetOptions
-	var owner string
+	var repo string
 
 	cmd := &cobra.Command{
-		Use:   "get <ruleset-id>",
-		Short: "Get an organization ruleset",
-		Long:  `Get detailed information about a specific organization ruleset by its ID. If org is not specified, the current repository's organization will be used.`,
+		Use:   "get <branch>",
+		Short: "Get branch protection settings",
+		Long:  `Get the protection settings for a specific branch. If repo is not specified, the current repository will be used.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rulesetID, err := strconv.ParseInt(args[0], 10, 64)
-			if err != nil {
-				return fmt.Errorf("invalid ruleset ID: %w", err)
-			}
+			branch := args[0]
 
-			repository, err := parser.Repository(parser.RepositoryOwner(owner))
+			repository, err := parser.Repository(parser.RepositoryInput(repo))
 			if err != nil {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
@@ -43,18 +39,18 @@ func NewGetCmd() *cobra.Command {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
-			ruleset, err := gh.GetOrgRuleset(ctx, client, repository, rulesetID)
+			protection, err := gh.GetBranchProtection(ctx, client, repository, branch)
 			if err != nil {
-				return fmt.Errorf("failed to get organization ruleset: %w", err)
+				return fmt.Errorf("failed to get branch protection for %q: %w", branch, err)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			return renderer.RenderRepositoryRuleset(ruleset, true)
+			return renderer.RenderBranchProtection(branch, protection)
 		},
 	}
 
 	f := cmd.Flags()
-	f.StringVar(&owner, "owner", "", "Specify the organization name")
+	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd
