@@ -12,7 +12,7 @@ import (
 	"github.com/srz-zumix/go-gh-extension/pkg/render"
 )
 
-// NewFromBranchProtectionCmd returns a new cobra.Command for migrating branch protection rules to rulesets
+// NewFromBranchProtectionCmd returns a new cobra.Command for converting branch protection rules to rulesets
 func NewFromBranchProtectionCmd() *cobra.Command {
 	var opts struct{ Exporter cmdutil.Exporter }
 	var repoFlag string
