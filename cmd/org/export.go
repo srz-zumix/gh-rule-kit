@@ -1,20 +1,26 @@
 package org
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 
+	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
+	"github.com/srz-zumix/go-gh-extension/pkg/render"
 )
+
+type ExportOptions struct {
+	Exporter cmdutil.Exporter
+}
 
 // NewExportCmd returns a new cobra.Command for exporting an organization ruleset
 func NewExportCmd() *cobra.Command {
+	var opts ExportOptions
 	var owner string
 	var output string
 
@@ -34,12 +40,12 @@ func NewExportCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			ruleset, err := gh.GetOrgRuleset(ctx, client, repository, rulesetID)
 			if err != nil {
 				return fmt.Errorf("failed to get organization ruleset: %w", err)
@@ -47,12 +53,16 @@ func NewExportCmd() *cobra.Command {
 
 			config := gh.ExportRuleset(ruleset)
 
+			renderer := render.NewRenderer(opts.Exporter)
+			if opts.Exporter != nil {
+				return renderer.RenderExportedData(config)
+			}
+
 			var jsonData []byte
 			jsonData, err = json.MarshalIndent(config, "", "  ")
 			if err != nil {
 				return fmt.Errorf("failed to marshal ruleset to JSON: %w", err)
 			}
-
 			if output == "" || output == "-" {
 				// Output to stdout
 				fmt.Println(string(jsonData))
@@ -72,6 +82,7 @@ func NewExportCmd() *cobra.Command {
 	f := cmd.Flags()
 	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	f.StringVarP(&output, "output", "o", "", "Output file path (default: stdout)")
+	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd
 }

@@ -1,7 +1,6 @@
 package insight
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/cli/cli/v2/pkg/cmdutil"
@@ -36,7 +35,6 @@ func NewListCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			ghClient, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
@@ -49,23 +47,23 @@ func NewListCmd() *cobra.Command {
 				RuleSuiteResult: ruleSuiteResult,
 			}
 
+			ctx := cmd.Context()
 			ruleSuites, err := gh.ListRepositoryRuleSuites(ctx, ghClient, repository, listOpts)
 			if err != nil {
 				return fmt.Errorf("failed to list repository rule suites: %w", err)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			renderer.RenderRuleSuitesDefault(ruleSuites)
-			return nil
+			return renderer.RenderRuleSuites(ruleSuites, nil)
 		},
 	}
 
 	f := cmd.Flags()
 	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
 	f.StringVar(&ref, "ref", "", "Filter by ref name (e.g., 'main', 'refs/heads/main')")
-	f.StringVar(&timePeriod, "time-period", "", "Filter by time period (e.g., 'hour', 'day', 'week', 'month')")
+	cmdutil.StringEnumFlag(cmd, &timePeriod, "time-period", "", "", gh.RuleSuiteTimePeriodList, "Filter by time period")
 	f.StringVar(&actorName, "actor-name", "", "Filter by actor name")
-	f.StringVar(&ruleSuiteResult, "result", "", "Filter by rule suite result (e.g., 'pass', 'fail', 'bypass')")
+	cmdutil.StringEnumFlag(cmd, &ruleSuiteResult, "result", "", "", gh.RuleSuiteResultList, "Filter by rule suite result")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd

@@ -1,7 +1,6 @@
 package org
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -36,8 +35,6 @@ func NewMigrateCmd() *cobra.Command {
 				return fmt.Errorf("error parsing destination organization: %w", err)
 			}
 
-			ctx := context.Background()
-
 			// Create clients for source and destination
 			srcClient, err := gh.NewGitHubClientWithRepo(srcRepository)
 			if err != nil {
@@ -49,6 +46,7 @@ func NewMigrateCmd() *cobra.Command {
 				return fmt.Errorf("failed to create GitHub client for destination organization: %w", err)
 			}
 
+			ctx := cmd.Context()
 			var rulesetIDs []int64
 			if len(args) > 2 {
 				// Parse specified ruleset IDs

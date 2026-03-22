@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -31,12 +30,12 @@ func NewDeleteCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			err = gh.DeleteRepositoryRuleset(ctx, client, repository, rulesetID)
 			if err != nil {
 				return fmt.Errorf("failed to delete repository ruleset: %w", err)

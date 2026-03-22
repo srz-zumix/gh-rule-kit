@@ -1,7 +1,6 @@
 package org
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -37,12 +36,12 @@ func NewGetCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			ruleset, err := gh.GetOrgRuleset(ctx, client, repository, rulesetID)
 			if err != nil {
 				return fmt.Errorf("failed to get organization ruleset: %w", err)

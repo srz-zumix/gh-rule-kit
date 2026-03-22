@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -38,20 +37,19 @@ func NewGetCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			ruleset, err := gh.GetRepositoryRuleset(ctx, client, repository, rulesetID, includesParent)
 			if err != nil {
 				return fmt.Errorf("failed to get repository ruleset: %w", err)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			renderer.RenderRepositoryRuleset(ruleset, true)
-			return nil
+			return renderer.RenderRepositoryRuleset(ruleset, true)
 		},
 	}
 
