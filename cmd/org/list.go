@@ -1,7 +1,6 @@
 package org
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/cli/cli/v2/pkg/cmdutil"
@@ -32,12 +31,12 @@ func NewListCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			rulesets, err := gh.ListOrgRulesets(ctx, client, repository)
 			if err != nil {
 				return fmt.Errorf("failed to list organization rulesets: %w", err)

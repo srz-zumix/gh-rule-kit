@@ -1,7 +1,6 @@
 package branch_protection
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -27,12 +26,12 @@ func NewDeleteCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			if err := gh.RemoveBranchProtection(ctx, client, repository, branch); err != nil {
 				return fmt.Errorf("failed to delete branch protection for %q: %w", branch, err)
 			}

@@ -1,20 +1,26 @@
 package repo
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 
+	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
+	"github.com/srz-zumix/go-gh-extension/pkg/render"
 )
+
+type ExportOptions struct {
+	Exporter cmdutil.Exporter
+}
 
 // NewExportCmd returns a new cobra.Command for exporting a repository ruleset
 func NewExportCmd() *cobra.Command {
+	var opts ExportOptions
 	var repo string
 	var output string
 	var includesParent bool
@@ -35,18 +41,23 @@ func NewExportCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			ruleset, err := gh.GetRepositoryRuleset(ctx, client, repository, rulesetID, includesParent)
 			if err != nil {
 				return fmt.Errorf("failed to get repository ruleset: %w", err)
 			}
 
 			config := gh.ExportRuleset(ruleset)
+
+			renderer := render.NewRenderer(opts.Exporter)
+			if opts.Exporter != nil {
+				return renderer.RenderExportedData(config)
+			}
 
 			var jsonData []byte
 			jsonData, err = json.MarshalIndent(config, "", "  ")
@@ -74,6 +85,8 @@ func NewExportCmd() *cobra.Command {
 	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
 	f.StringVarP(&output, "output", "o", "", "Output file path (default: stdout)")
 	f.BoolVarP(&includesParent, "includes-parent", "p", false, "Include parent rulesets")
+	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
+	cmd.MarkFlagsMutuallyExclusive("output", "format")
 
 	return cmd
 }

@@ -1,7 +1,6 @@
 package insight
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -37,20 +36,19 @@ func NewGetCmd() *cobra.Command {
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			ghClient, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			ruleSuite, err := gh.GetRepositoryRuleSuite(ctx, ghClient, repository, ruleSuiteID)
 			if err != nil {
 				return fmt.Errorf("failed to get repository rule suite: %w", err)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			renderer.RenderRuleSuiteDetail(ruleSuite)
-			return nil
+			return renderer.RenderRuleSuiteDetail(ruleSuite)
 		},
 	}
 

@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -51,11 +50,12 @@ func NewImportCmd() *cobra.Command {
 				}
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
+
+			ctx := cmd.Context()
 			found, err := gh.FindRepositoryRuleset(ctx, client, repository, *config.ID, config.Name, false)
 			if err != nil {
 				return fmt.Errorf("failed to find repository ruleset: %w", err)

@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/cli/cli/v2/pkg/cmdutil"
@@ -36,12 +35,12 @@ Use --delete to remove the original branch protection rule after successful conv
 				return fmt.Errorf("error parsing repository: %w", err)
 			}
 
-			ctx := context.Background()
 			client, err := gh.NewGitHubClientWithRepo(repository)
 			if err != nil {
 				return fmt.Errorf("failed to create GitHub client: %w", err)
 			}
 
+			ctx := cmd.Context()
 			protection, err := gh.GetBranchProtection(ctx, client, repository, branch)
 			if err != nil {
 				return fmt.Errorf("failed to get branch protection for %q: %w", branch, err)
