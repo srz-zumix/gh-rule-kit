@@ -83,6 +83,7 @@ func NewExportCmd() *cobra.Command {
 	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	f.StringVarP(&output, "output", "o", "", "Output file path (default: stdout)")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
+	cmd.MarkFlagsMutuallyExclusive("output", "format")
 
 	return cmd
 }

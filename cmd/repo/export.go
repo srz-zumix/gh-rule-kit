@@ -86,6 +86,7 @@ func NewExportCmd() *cobra.Command {
 	f.StringVarP(&output, "output", "o", "", "Output file path (default: stdout)")
 	f.BoolVarP(&includesParent, "includes-parent", "p", false, "Include parent rulesets")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
+	cmd.MarkFlagsMutuallyExclusive("output", "format")
 
 	return cmd
 }
