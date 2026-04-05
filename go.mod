@@ -5,7 +5,7 @@ go 1.26.1
 require (
 	github.com/cli/cli/v2 v2.88.1
 	github.com/spf13/cobra v1.10.2
-	github.com/srz-zumix/go-gh-extension v0.4.13
+	github.com/srz-zumix/go-gh-extension v0.4.14
 )
 
 require (
