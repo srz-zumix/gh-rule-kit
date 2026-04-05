@@ -10,6 +10,7 @@ import (
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
 	"github.com/srz-zumix/go-gh-extension/pkg/render"
+	"github.com/srz-zumix/go-gh-extension/pkg/settings"
 )
 
 type ImportOptions struct {
@@ -22,11 +23,12 @@ func NewImportCmd() *cobra.Command {
 	var repo string
 	var input string
 	var createIfNotExists bool
+	var mapFile string
 
 	cmd := &cobra.Command{
 		Use:   "import <input>",
 		Short: "Import a repository ruleset from JSON file",
-		Long:  `Import a repository ruleset from a JSON file. If repo is not specified, the current repository will be used. Use --update flag with --ruleset-id to update an existing ruleset.`,
+		Long:  `Import a repository ruleset from a JSON file. If repo is not specified, the current repository will be used. Use --create-if-none flag to create a new ruleset if it does not exist. When --usermap is specified, source user logins in User-type bypass actors are automatically converted to destination logins using the mapping file (as produced by 'user map' in gh-team-kit).`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			input = args[0]
@@ -56,6 +58,18 @@ func NewImportCmd() *cobra.Command {
 			}
 
 			ctx := cmd.Context()
+
+			// Load mapping file if specified
+			if mapFile != "" {
+				compiledMappings, err := settings.NewCompiledMappingsFromFile(mapFile)
+				if err != nil {
+					return fmt.Errorf("error loading mapping file '%s': %w", mapFile, err)
+				}
+				if err := gh.ApplyUserMappingToRulesetConfig(ctx, client, repository, config, compiledMappings.ResolveSrc); err != nil {
+					return fmt.Errorf("error applying user mapping: %w", err)
+				}
+			}
+
 			found, err := gh.FindRepositoryRuleset(ctx, client, repository, *config.ID, config.Name, false)
 			if err != nil {
 				return fmt.Errorf("failed to find repository ruleset: %w", err)
@@ -92,6 +106,7 @@ func NewImportCmd() *cobra.Command {
 	f := cmd.Flags()
 	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
 	f.BoolVarP(&createIfNotExists, "create-if-none", "c", false, "Create a new ruleset if it does not exist")
+	f.StringVar(&mapFile, "usermap", "", "User mapping file for User-type bypass actor login conversion (as produced by 'user map' in gh-team-kit)")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd

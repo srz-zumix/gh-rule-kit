@@ -8,16 +8,18 @@ import (
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
+	"github.com/srz-zumix/go-gh-extension/pkg/settings"
 )
 
 // NewMigrateCmd returns a new cobra.Command for migrating organization rulesets
 func NewMigrateCmd() *cobra.Command {
 	var gitHubActionsAppID int64
+	var mapFile string
 
 	cmd := &cobra.Command{
 		Use:   "migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]",
 		Short: "Migrate organization rulesets to another organization",
-		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified as the first argument, destination organization is specified as the second argument.`,
+		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified as the first argument, destination organization is specified as the second argument. When --usermap is specified, source user logins in User-type bypass actors are mapped to destination logins using the mapping file (as produced by 'user map' in gh-team-kit).`,
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			srcOrg := args[0]
@@ -82,6 +84,16 @@ func NewMigrateCmd() *cobra.Command {
 				gitHubActionsAppIDPtr = &gitHubActionsAppID
 			}
 
+			// Load mapping file if specified
+			var resolve func(string) (string, bool)
+			if mapFile != "" {
+				compiledMappings, err := settings.NewCompiledMappingsFromFile(mapFile)
+				if err != nil {
+					return fmt.Errorf("error loading mapping file '%s': %w", mapFile, err)
+				}
+				resolve = compiledMappings.ResolveSrc
+			}
+
 			// Migrate each ruleset
 			successCount := 0
 			for _, rulesetID := range rulesetIDs {
@@ -95,7 +107,7 @@ func NewMigrateCmd() *cobra.Command {
 				}
 
 				// Import ruleset to destination (handles team actor ID mapping)
-				createdRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr)
+				createdRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr, resolve)
 				if err != nil {
 					logger.Error("Failed to import ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
 					continue
@@ -117,6 +129,7 @@ func NewMigrateCmd() *cobra.Command {
 
 	f := cmd.Flags()
 	f.Int64Var(&gitHubActionsAppID, "github-actions-app-id", 0, "The GitHub Actions App ID for integration mapping")
+	f.StringVar(&mapFile, "usermap", "", "User mapping file for User-type bypass actor login conversion (as produced by 'user map' in gh-team-kit)")
 
 	return cmd
 }

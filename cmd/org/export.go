@@ -52,6 +52,7 @@ func NewExportCmd() *cobra.Command {
 			}
 
 			config := gh.ExportRuleset(ruleset)
+			config.BypassActorsMeta = gh.BuildBypassActorsMeta(ctx, client, repository, ruleset)
 
 			renderer := render.NewRenderer(opts.Exporter)
 			if opts.Exporter != nil {
