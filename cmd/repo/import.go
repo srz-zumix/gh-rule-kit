@@ -6,6 +6,7 @@ import (
 
 	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
+	"github.com/srz-zumix/go-gh-extension/pkg/cmdflags"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
@@ -23,7 +24,7 @@ func NewImportCmd() *cobra.Command {
 	var repo string
 	var input string
 	var createIfNotExists bool
-	var mapFile string
+	var mappings *settings.CompiledMappings
 
 	cmd := &cobra.Command{
 		Use:   "import <input>",
@@ -59,13 +60,9 @@ func NewImportCmd() *cobra.Command {
 
 			ctx := cmd.Context()
 
-			// Load mapping file if specified
-			if mapFile != "" {
-				compiledMappings, err := settings.NewCompiledMappingsFromFile(mapFile)
-				if err != nil {
-					return fmt.Errorf("error loading mapping file '%s': %w", mapFile, err)
-				}
-				if err := gh.ApplyUserMappingToRulesetConfig(ctx, client, repository, config, compiledMappings.ResolveSrc); err != nil {
+			// Apply user mapping if specified
+			if mappings != nil {
+				if err := gh.ApplyUserMappingToRulesetConfig(ctx, client, repository, config, mappings.ResolveSrc); err != nil {
 					return fmt.Errorf("error applying user mapping: %w", err)
 				}
 			}
@@ -106,7 +103,7 @@ func NewImportCmd() *cobra.Command {
 	f := cmd.Flags()
 	f.StringVarP(&repo, "repo", "R", "", "The repository in the format 'owner/repo'")
 	f.BoolVarP(&createIfNotExists, "create-if-none", "c", false, "Create a new ruleset if it does not exist")
-	f.StringVar(&mapFile, "usermap", "", "User mapping file for User-type bypass actor login conversion (as produced by 'user map' in gh-team-kit)")
+	cmdflags.AddUsermapFlag(cmd, &mappings, "User mapping file for User-type bypass actors in the target repository ruleset (as produced by 'user map' in gh-team-kit)")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd

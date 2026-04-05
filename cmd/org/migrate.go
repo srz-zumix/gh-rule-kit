@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/srz-zumix/go-gh-extension/pkg/cmdflags"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
@@ -14,7 +15,7 @@ import (
 // NewMigrateCmd returns a new cobra.Command for migrating organization rulesets
 func NewMigrateCmd() *cobra.Command {
 	var gitHubActionsAppID int64
-	var mapFile string
+	var mappings *settings.CompiledMappings
 
 	cmd := &cobra.Command{
 		Use:   "migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]",
@@ -83,19 +84,14 @@ func NewMigrateCmd() *cobra.Command {
 			if gitHubActionsAppID != 0 {
 				gitHubActionsAppIDPtr = &gitHubActionsAppID
 			}
+			var successCount int
 
-			// Load mapping file if specified
+			// Resolve user mapping if specified
 			var resolve func(string) (string, bool)
-			if mapFile != "" {
-				compiledMappings, err := settings.NewCompiledMappingsFromFile(mapFile)
-				if err != nil {
-					return fmt.Errorf("error loading mapping file '%s': %w", mapFile, err)
-				}
-				resolve = compiledMappings.ResolveSrc
+			if mappings != nil {
+				resolve = mappings.ResolveSrc
 			}
 
-			// Migrate each ruleset
-			successCount := 0
 			for _, rulesetID := range rulesetIDs {
 				logger.Info("Migrating ruleset", "id", rulesetID)
 
@@ -129,7 +125,7 @@ func NewMigrateCmd() *cobra.Command {
 
 	f := cmd.Flags()
 	f.Int64Var(&gitHubActionsAppID, "github-actions-app-id", 0, "The GitHub Actions App ID for integration mapping")
-	f.StringVar(&mapFile, "usermap", "", "User mapping file for User-type bypass actor login conversion (as produced by 'user map' in gh-team-kit)")
+	cmdflags.AddUsermapFlag(cmd, &mappings, "User mapping file to map source User-type bypass actor logins to destination logins (as produced by 'user map' in gh-team-kit)")
 
 	return cmd
 }
