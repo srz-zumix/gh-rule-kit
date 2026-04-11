@@ -63,6 +63,44 @@ List all protected branches for a repository. If repo is not specified, the curr
 
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
+### Tag Protection Rules
+
+#### Delete tag protection settings
+
+```sh
+gh rule-kit repo tag-protection delete <pattern> [-R <repo>]
+```
+
+Remove the protection settings from a tag pattern. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### Get tag protection settings
+
+```sh
+gh rule-kit repo tag-protection get <pattern> [-R <repo>]
+```
+
+Get the protection settings for a specific tag pattern. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### List tag protection settings
+
+```sh
+gh rule-kit repo tag-protection list [-R <repo>]
+```
+
+List all tag protection settings for a repository. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
 ### Repository Rulesets
 
 #### Convert a branch protection rule to a ruleset
@@ -92,6 +130,26 @@ The following branch protection settings are converted:
 **Options:**
 
 - `--delete`: Delete the original branch protection rule after successful conversion (default: false)
+- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### Convert a tag protection rule to a ruleset
+
+```sh
+gh rule-kit repo from-tag-protection <pattern> [-R <repo>] [-n] [--delete]
+```
+
+Convert a tag protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
+
+The converted ruleset targets `refs/tags/<pattern>` and applies:
+
+- `creation` rule
+- `update` rule
+- `deletion` rule
+
+**Options:**
+
+- `--delete`: Delete the original tag protection rule after successful conversion (default: false)
 - `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
