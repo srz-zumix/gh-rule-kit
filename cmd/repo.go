@@ -17,11 +17,13 @@ func NewRepoCmd() *cobra.Command {
 	cmd.AddCommand(repo.NewDeleteCmd())
 	cmd.AddCommand(repo.NewExportCmd())
 	cmd.AddCommand(repo.NewFromBranchProtectionCmd())
+	cmd.AddCommand(repo.NewFromTagProtectionCmd())
 	cmd.AddCommand(repo.NewGetCmd())
 	cmd.AddCommand(repo.NewImportCmd())
 	cmd.AddCommand(repo.NewInsightCmd())
 	cmd.AddCommand(repo.NewListCmd())
 	cmd.AddCommand(repo.NewMigrateCmd())
+	cmd.AddCommand(repo.NewTagProtectionCmd())
 
 	return cmd
 }

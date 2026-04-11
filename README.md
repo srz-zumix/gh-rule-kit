@@ -63,37 +63,45 @@ List all protected branches for a repository. If repo is not specified, the curr
 
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
-### Repository Rulesets
+### Tag Protection Rules
 
-#### Convert a branch protection rule to a ruleset
+#### Delete tag protection settings
 
 ```sh
-gh rule-kit repo from-branch-protection <branch> [-R <repo>] [-n] [--delete]
+gh rule-kit repo tag-protection delete <pattern> [-R <repo>]
 ```
 
-Convert a branch protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
-
-The following branch protection settings are converted:
-
-| Branch Protection Setting | Ruleset Equivalent |
-|---|---|
-| Require linear history | `required_linear_history` rule |
-| Allow force pushes (disabled) | `non_fast_forward` rule |
-| Allow deletions (disabled) | `deletion` rule |
-| Block creations | `creation` rule |
-| Require signed commits | `required_signatures` rule |
-| Required status checks | `required_status_checks` rule |
-| Required pull request reviews | `pull_request` rule |
-| Require conversation resolution | `required_review_thread_resolution` (in pull_request rule) |
-| Do not include administrators | Repository Admin bypass actor |
-
-**Note:** Push-access restrictions (`Restrictions`) cannot be directly converted to rulesets and are reported as warnings.
+Remove the protection settings from a tag pattern. If repo is not specified, the current repository will be used.
 
 **Options:**
 
-- `--delete`: Delete the original branch protection rule after successful conversion (default: false)
-- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### Get tag protection settings
+
+```sh
+gh rule-kit repo tag-protection get <pattern> [-R <repo>]
+```
+
+Get the protection settings for a specific tag pattern. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### List tag protection settings
+
+```sh
+gh rule-kit repo tag-protection list [-R <repo>]
+```
+
+List all tag protection settings for a repository. If repo is not specified, the current repository will be used.
+
+**Options:**
+
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+### Repository Rulesets
 
 #### Delete a repository ruleset
 
@@ -174,6 +182,56 @@ Migrate repository rulesets from source repository to destination repository. If
 - `--github-actions-app-id <id>`: The GitHub Actions App ID for integration mapping (optional, default: 0)
 - `-R, --repo <repo>`: The source repository in the format 'owner/repo' (optional, defaults to current repository)
 - `--usermap <file>`: User mapping file to map source User-type bypass actor logins to destination logins (as produced by 'user map' in gh-team-kit) (optional)
+
+#### Convert a branch protection rule to a ruleset
+
+```sh
+gh rule-kit repo from-branch-protection <branch> [-R <repo>] [-n] [--delete]
+```
+
+Convert a branch protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
+
+The following branch protection settings are converted:
+
+| Branch Protection Setting | Ruleset Equivalent |
+|---|---|
+| Require linear history | `required_linear_history` rule |
+| Allow force pushes (disabled) | `non_fast_forward` rule |
+| Allow deletions (disabled) | `deletion` rule |
+| Block creations | `creation` rule |
+| Require signed commits | `required_signatures` rule |
+| Required status checks | `required_status_checks` rule |
+| Required pull request reviews | `pull_request` rule |
+| Require conversation resolution | `required_review_thread_resolution` (in pull_request rule) |
+| Do not include administrators | Repository Admin bypass actor |
+
+**Note:** Push-access restrictions (`Restrictions`) cannot be directly converted to rulesets and are reported as warnings.
+
+**Options:**
+
+- `--delete`: Delete the original branch protection rule after successful conversion (default: false)
+- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+
+#### Convert a tag protection rule to a ruleset
+
+```sh
+gh rule-kit repo from-tag-protection <pattern> [-R <repo>] [-n] [--delete]
+```
+
+Convert a tag protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
+
+The converted ruleset targets `refs/tags/<pattern>` and applies:
+
+- `creation` rule
+- `update` rule
+- `deletion` rule
+
+**Options:**
+
+- `--delete`: Delete the original tag protection rule after successful conversion (default: false)
+- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
+- `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
 ### Repository Rule Suite Insights
 
