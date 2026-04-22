@@ -25,11 +25,12 @@ func NewImportCmd() *cobra.Command {
 	var input string
 	var createIfNotExists bool
 	var mappings *settings.CompiledMappings
+	var dryRun bool
 
 	cmd := &cobra.Command{
 		Use:   "import <input>",
 		Short: "Import an organization ruleset from JSON file",
-		Long:  `Import an organization ruleset from a JSON file. If org is not specified, the current repository's organization will be used. Use --create-if-none flag to create a new ruleset if it does not exist. When --usermap is specified, source user logins in User-type bypass actors are automatically converted to destination logins using the mapping file (as produced by 'user map' in gh-team-kit).`,
+		Long:  `Import an organization ruleset from a JSON file. If org is not specified, the current repository's organization will be used. Use --create-if-none flag to create a new ruleset if it does not exist. When --usermap is specified, source user logins in User-type bypass actors are automatically converted to destination logins using the mapping file (as produced by 'user map' in gh-team-kit). Use --dryrun to preview the ruleset that would be written without actually creating or updating it.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			input = args[0]
@@ -78,31 +79,33 @@ func NewImportCmd() *cobra.Command {
 			// Convert to RepositoryRuleset
 			ruleset := gh.ImportRuleset(config, found)
 
-			resultRuleset := found // nolint
-			if found == nil && createIfNotExists {
-				// Create new ruleset
-				resultRuleset, err = gh.CreateOrgRuleset(ctx, client, repository, ruleset)
-				if err != nil {
-					return fmt.Errorf("failed to create organization ruleset: %w", err)
+			if !dryRun {
+				if found == nil && createIfNotExists {
+					// Create new ruleset
+					ruleset, err = gh.CreateOrgRuleset(ctx, client, repository, ruleset)
+					if err != nil {
+						return fmt.Errorf("failed to create organization ruleset: %w", err)
+					}
+					logger.Info("Successfully created ruleset.", "rulesetID", *ruleset.ID, "rulesetName", ruleset.Name, "organization", repository.Owner)
+				} else {
+					// Update existing ruleset
+					ruleset, err = gh.UpdateOrgRuleset(ctx, client, repository, *found.ID, ruleset)
+					if err != nil {
+						return fmt.Errorf("failed to update organization ruleset: %w", err)
+					}
+					logger.Info("Successfully updated ruleset.", "rulesetID", *ruleset.ID, "rulesetName", ruleset.Name, "organization", repository.Owner)
 				}
-				logger.Info("Successfully created ruleset.", "rulesetID", *resultRuleset.ID, "rulesetName", resultRuleset.Name, "organization", repository.Owner)
-			} else {
-				// Update existing ruleset
-				resultRuleset, err = gh.UpdateOrgRuleset(ctx, client, repository, *found.ID, ruleset)
-				if err != nil {
-					return fmt.Errorf("failed to update organization ruleset: %w", err)
-				}
-				logger.Info("Successfully updated ruleset.", "rulesetID", *resultRuleset.ID, "rulesetName", resultRuleset.Name, "organization", repository.Owner)
 			}
 
 			renderer := render.NewRenderer(opts.Exporter)
-			return renderer.RenderRepositoryRuleset(resultRuleset, true)
+			return renderer.RenderRepositoryRuleset(ruleset, true)
 		},
 	}
 
 	f := cmd.Flags()
 	f.StringVar(&owner, "owner", "", "Specify the organization name")
 	f.BoolVarP(&createIfNotExists, "create-if-none", "c", false, "Create a new ruleset if it does not exist")
+	f.BoolVarP(&dryRun, "dryrun", "n", false, "Print the ruleset that would be written without actually creating or updating it")
 	cmdflags.AddUsermapFlag(cmd, &mappings, "User mapping file for User-type bypass actors in the target organization ruleset (as produced by 'user map' in gh-team-kit)")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 

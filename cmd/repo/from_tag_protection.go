@@ -22,7 +22,7 @@ func NewFromTagProtectionCmd() *cobra.Command {
 		Use:   "from-tag-protection <pattern>",
 		Short: "Convert a tag protection rule to a ruleset",
 		Long: `Convert a tag protection rule to a repository ruleset.
-The converted ruleset is displayed. Use --dry-run to preview without creating.
+The converted ruleset is displayed. Use --dryrun to preview without creating.
 
 Use --delete to remove the original tag protection rule after successful conversion.`,
 		Args: cobra.ExactArgs(1),
@@ -74,7 +74,7 @@ Use --delete to remove the original tag protection rule after successful convers
 
 	f := cmd.Flags()
 	f.StringVarP(&repoFlag, "repo", "R", "", "The repository in the format 'owner/repo'")
-	f.BoolVarP(&dryRun, "dry-run", "n", false, "Print the ruleset that would be created without actually creating it")
+	f.BoolVarP(&dryRun, "dryrun", "n", false, "Print the ruleset that would be created without actually creating it")
 	f.BoolVar(&deleteAfter, "delete", false, "Delete the original tag protection rule after successful conversion")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 

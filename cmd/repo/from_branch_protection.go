@@ -22,7 +22,7 @@ func NewFromBranchProtectionCmd() *cobra.Command {
 		Use:   "from-branch-protection <branch>",
 		Short: "Convert a branch protection rule to a ruleset",
 		Long: `Convert a branch protection rule to a repository ruleset.
-The converted ruleset is displayed. Use --dry-run to preview without creating.
+The converted ruleset is displayed. Use --dryrun to preview without creating.
 
 Rules that have no direct ruleset equivalent (e.g., push-access restrictions) are reported as warnings.
 Use --delete to remove the original branch protection rule after successful conversion.`,
@@ -72,7 +72,7 @@ Use --delete to remove the original branch protection rule after successful conv
 
 	f := cmd.Flags()
 	f.StringVarP(&repoFlag, "repo", "R", "", "The repository in the format 'owner/repo'")
-	f.BoolVarP(&dryRun, "dry-run", "n", false, "Print the ruleset that would be created without actually creating it")
+	f.BoolVarP(&dryRun, "dryrun", "n", false, "Print the ruleset that would be created without actually creating it")
 	f.BoolVar(&deleteAfter, "delete", false, "Delete the original branch protection rule after successful conversion")
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 

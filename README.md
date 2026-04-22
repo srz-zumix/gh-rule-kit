@@ -194,7 +194,7 @@ Convert a branch protection rule to a repository ruleset and display the result.
 The following branch protection settings are converted:
 
 | Branch Protection Setting | Ruleset Equivalent |
-|---|---|
+| --- | --- |
 | Require linear history | `required_linear_history` rule |
 | Allow force pushes (disabled) | `non_fast_forward` rule |
 | Allow deletions (disabled) | `deletion` rule |
