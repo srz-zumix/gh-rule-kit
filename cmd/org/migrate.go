@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
 	"github.com/srz-zumix/go-gh-extension/pkg/cmdflags"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
@@ -13,11 +14,16 @@ import (
 	"github.com/srz-zumix/go-gh-extension/pkg/settings"
 )
 
+type MigrateOptions struct {
+	Exporter cmdutil.Exporter
+}
+
 // NewMigrateCmd returns a new cobra.Command for migrating organization rulesets
 func NewMigrateCmd() *cobra.Command {
 	var gitHubActionsAppID int64
 	var mappings *settings.CompiledMappings
 	var dryRun bool
+	var opts MigrateOptions
 
 	cmd := &cobra.Command{
 		Use:   "migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]",
@@ -94,7 +100,7 @@ func NewMigrateCmd() *cobra.Command {
 				resolve = mappings.ResolveSrc
 			}
 
-			renderer := render.NewRenderer(nil)
+			renderer := render.NewRenderer(opts.Exporter)
 
 			for _, rulesetID := range rulesetIDs {
 				logger.Info("Migrating ruleset", "id", rulesetID)
@@ -150,6 +156,7 @@ func NewMigrateCmd() *cobra.Command {
 	f.Int64Var(&gitHubActionsAppID, "github-actions-app-id", 0, "The GitHub Actions App ID for integration mapping")
 	f.BoolVarP(&dryRun, "dryrun", "n", false, "Print the rulesets that would be migrated without actually creating them")
 	cmdflags.AddUsermapFlag(cmd, &mappings, "User mapping file to map source User-type bypass actor logins to destination logins (as produced by 'user map' in gh-team-kit)")
+	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd
 }
