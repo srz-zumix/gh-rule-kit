@@ -142,7 +142,6 @@ gh rule-kit repo import ruleset.json --usermap users.csv
 ```bash
 # Migrate all rulesets from current repo to destination repo
 gh rule-kit repo migrate dst-owner/dst-repo
-gh rule-kit repo migrate dst-owner/dst-repo
 
 # Migrate specific rulesets by ID
 gh rule-kit repo migrate dst-owner/dst-repo 12345 67890
