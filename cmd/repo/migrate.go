@@ -111,7 +111,7 @@ func NewMigrateCmd() *cobra.Command {
 				}
 
 				// Transform ruleset for the destination (bypass actors, conditions, rules remapping)
-				transformedRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr, resolve)
+				transformedRuleset, err := gh.TransformMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr, resolve)
 				if err != nil {
 					logger.Error("Failed to transform ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
 					continue

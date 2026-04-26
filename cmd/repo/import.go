@@ -77,8 +77,7 @@ func NewImportCmd() *cobra.Command {
 			}
 
 			// Convert to RepositoryRuleset
-			ruleset := gh.ImportRuleset(config, found)
-
+			ruleset := config.ToRepositoryRuleset(found)
 			if !dryRun {
 				if found == nil && createIfNotExists {
 					// Create new ruleset
