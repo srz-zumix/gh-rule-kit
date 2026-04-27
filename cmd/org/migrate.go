@@ -119,7 +119,7 @@ func NewMigrateCmd() *cobra.Command {
 					continue
 				}
 				if transformedRuleset == nil {
-					// Skipped by ImportMigrateRuleset (e.g. push target on unsupported platform)
+					// Skipped by TransformMigrateRuleset (e.g. push target on unsupported platform)
 					continue
 				}
 
