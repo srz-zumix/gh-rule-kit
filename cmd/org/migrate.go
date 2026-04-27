@@ -4,23 +4,31 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
 	"github.com/srz-zumix/go-gh-extension/pkg/cmdflags"
 	"github.com/srz-zumix/go-gh-extension/pkg/gh"
 	"github.com/srz-zumix/go-gh-extension/pkg/logger"
 	"github.com/srz-zumix/go-gh-extension/pkg/parser"
+	"github.com/srz-zumix/go-gh-extension/pkg/render"
 	"github.com/srz-zumix/go-gh-extension/pkg/settings"
 )
+
+type MigrateOptions struct {
+	Exporter cmdutil.Exporter
+}
 
 // NewMigrateCmd returns a new cobra.Command for migrating organization rulesets
 func NewMigrateCmd() *cobra.Command {
 	var gitHubActionsAppID int64
 	var mappings *settings.CompiledMappings
+	var dryRun bool
+	var opts MigrateOptions
 
 	cmd := &cobra.Command{
 		Use:   "migrate <[HOST/]src-org> <[HOST/]dst-org> [ruleset-id...]",
 		Short: "Migrate organization rulesets to another organization",
-		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified as the first argument, destination organization is specified as the second argument. When --usermap is specified, source user logins in User-type bypass actors are mapped to destination logins using the mapping file (as produced by 'user map' in gh-team-kit).`,
+		Long:  `Migrate organization rulesets from source organization to destination organization. If ruleset IDs are not specified, all rulesets will be migrated. Source organization is specified as the first argument, destination organization is specified as the second argument. When --usermap is specified, source user logins in User-type bypass actors are mapped to destination logins using the mapping file (as produced by 'user map' in gh-team-kit). Use --dryrun to preview the rulesets that would be migrated without actually creating them.`,
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			srcOrg := args[0]
@@ -92,6 +100,8 @@ func NewMigrateCmd() *cobra.Command {
 				resolve = mappings.ResolveSrc
 			}
 
+			renderer := render.NewRenderer(opts.Exporter)
+
 			for _, rulesetID := range rulesetIDs {
 				logger.Info("Migrating ruleset", "id", rulesetID)
 
@@ -102,10 +112,29 @@ func NewMigrateCmd() *cobra.Command {
 					continue
 				}
 
-				// Import ruleset to destination (handles team actor ID mapping)
-				createdRuleset, err := gh.ImportMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr, resolve)
+				// Transform ruleset for the destination (bypass actors, conditions, rules remapping)
+				transformedRuleset, err := gh.TransformMigrateRuleset(ctx, dstClient, dstRepository, migrateConfig, gitHubActionsAppIDPtr, resolve)
 				if err != nil {
-					logger.Error("Failed to import ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
+					logger.Error("Failed to transform ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
+					continue
+				}
+				if transformedRuleset == nil {
+					// Skipped by TransformMigrateRuleset (e.g. push target on unsupported platform)
+					continue
+				}
+
+				if dryRun {
+					if err := renderer.RenderRepositoryRuleset(transformedRuleset, true); err != nil {
+						return fmt.Errorf("failed to render ruleset %d: %w", rulesetID, err)
+					}
+					successCount++
+					continue
+				}
+
+				// Create or update ruleset in destination
+				createdRuleset, err := gh.CreateOrUpdateRuleset(ctx, dstClient, dstRepository, transformedRuleset)
+				if err != nil {
+					logger.Error("Failed to create or update ruleset", "name", migrateConfig.Ruleset.Name, "error", err)
 					continue
 				}
 
@@ -125,7 +154,9 @@ func NewMigrateCmd() *cobra.Command {
 
 	f := cmd.Flags()
 	f.Int64Var(&gitHubActionsAppID, "github-actions-app-id", 0, "The GitHub Actions App ID for integration mapping")
+	f.BoolVarP(&dryRun, "dryrun", "n", false, "Print the rulesets that would be migrated without actually creating them")
 	cmdflags.AddUsermapFlag(cmd, &mappings, "User mapping file to map source User-type bypass actor logins to destination logins (as produced by 'user map' in gh-team-kit)")
+	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
 
 	return cmd
 }

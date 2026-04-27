@@ -189,12 +189,12 @@ Migrate repository rulesets from source repository to destination repository. If
 gh rule-kit repo from-branch-protection <branch> [-R <repo>] [-n] [--delete]
 ```
 
-Convert a branch protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
+Convert a branch protection rule to a repository ruleset and display the result. Use `--dryrun` (`-n`) to preview the converted ruleset without creating it.
 
 The following branch protection settings are converted:
 
 | Branch Protection Setting | Ruleset Equivalent |
-|---|---|
+| --- | --- |
 | Require linear history | `required_linear_history` rule |
 | Allow force pushes (disabled) | `non_fast_forward` rule |
 | Allow deletions (disabled) | `deletion` rule |

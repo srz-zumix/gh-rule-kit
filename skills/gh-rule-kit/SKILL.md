@@ -34,7 +34,7 @@ gh rule-kit --version
 | `--read-only` | Prevent any write operations (create, update, delete, import, migrate are blocked) |
 | `-L`, `--log-level` | Log level (`debug`, `info`, `warn`, `error`; default `info`) |
 
-Common flags such as `-R`/`--repo`, `--owner`, `-o`/`--output`, `-p`/`--includes-parent`, `-n`/`--dry-run`, `--usermap`, `--github-actions-app-id` are only available on specific subcommands. Check each subcommand's help for supported options.
+Common flags such as `-R`/`--repo`, `--owner`, `-o`/`--output`, `-p`/`--includes-parent`, `-n`/`--dryrun`, `--usermap`, `--github-actions-app-id` are only available on specific subcommands. Check each subcommand's help for supported options.
 
 If `-R`/`--repo` is omitted, the current repository is used. If `--owner` is omitted, the current repository's organization is used.
 
@@ -137,6 +137,8 @@ gh rule-kit repo import ruleset.json --usermap users.csv
 
 ### `migrate`
 
+> **Note**: Use `--dryrun` (`-n`) to preview the rulesets that would be migrated without actually creating them in the destination. The `--read-only` global flag causes any write API call to **return an error** immediately ("only GET and HEAD methods are allowed"), so using it with `migrate` will abort the operation — it is not a preview mode.
+
 ```bash
 # Migrate all rulesets from current repo to destination repo
 gh rule-kit repo migrate dst-owner/dst-repo
@@ -180,6 +182,8 @@ gh rule-kit repo from-branch-protection main --delete
 # Convert in a specific repository
 gh rule-kit repo from-branch-protection main -R owner/repo
 ```
+
+> **Note**: `-n` and `--delete` can be combined safely. When `-n` is set, the ruleset is only printed — no ruleset is created and no branch protection rule is deleted.
 
 Conversion mapping:
 
@@ -355,6 +359,8 @@ gh rule-kit org import ruleset.json --usermap users.csv --owner myorg
 
 ### `migrate`
 
+> **Note**: Use `--dryrun` (`-n`) to preview the rulesets that would be migrated without actually creating them in the destination. The `--read-only` global flag causes any write API call to **return an error** immediately ("only GET and HEAD methods are allowed"), so using it with `migrate` will abort the operation — it is not a preview mode.
+
 ```bash
 # Migrate all org rulesets from src-org to dst-org
 gh rule-kit org migrate src-org dst-org
@@ -423,6 +429,16 @@ gh rule-kit repo import ruleset.json -R owner/repo -c
 ### Migrate all rulesets between repositories
 
 ```bash
+# Preview: inspect source rulesets before migrating
+gh rule-kit repo list -R src-owner/src-repo
+
+# Migrate with dryrun (prints what would be created, no write)
+gh rule-kit repo migrate dst-owner/dst-repo \
+  -R src-owner/src-repo \
+  --usermap users.csv \
+  -n
+
+# Migrate (dryrun confirmed; run without -n to execute)
 gh rule-kit repo migrate dst-owner/dst-repo \
   -R src-owner/src-repo \
   --usermap users.csv
@@ -450,7 +466,7 @@ gh rule-kit --read-only repo import ruleset.json -c
 ## Best Practices
 
 1. Use `--read-only` in CI or exploratory sessions to guarantee no writes occur.
-2. Preview conversions with `-n`/`--dry-run` (`from-branch-protection`, `from-tag-protection`) before applying.
+2. Preview conversions with `-n`/`--dryrun` (`from-branch-protection`, `from-tag-protection`) before applying.
 3. When migrating across orgs/hosts, prepare a usermap (e.g. produced by `gh team-kit user map`) and pass it via `--usermap` so User-type bypass actors are remapped correctly.
 4. Provide `--github-actions-app-id` when the destination uses a different GitHub Actions App installation ID.
 5. Use `-p`/`--includes-parent` to inspect the effective ruleset stack (repo + org).
