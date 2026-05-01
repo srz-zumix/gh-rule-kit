@@ -18,9 +18,9 @@ func parseRulesetID(arg string) (int64, error) {
 func ParseRulesetIDs(args []string) ([]int64, error) {
 	ids := make([]int64, 0, len(args))
 	for _, idStr := range args {
-		id, err := strconv.ParseInt(idStr, 10, 64)
+		id, err := parseRulesetID(idStr)
 		if err != nil {
-			return nil, fmt.Errorf("invalid ruleset ID '%s': %w", idStr, err)
+			return nil, err
 		}
 		ids = append(ids, id)
 	}
