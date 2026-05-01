@@ -1,90 +1,11 @@
 package org
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"strconv"
-
-	"github.com/cli/cli/v2/pkg/cmdutil"
 	"github.com/spf13/cobra"
-	"github.com/srz-zumix/go-gh-extension/pkg/gh"
-	"github.com/srz-zumix/go-gh-extension/pkg/logger"
-	"github.com/srz-zumix/go-gh-extension/pkg/parser"
-	"github.com/srz-zumix/go-gh-extension/pkg/render"
+	"github.com/srz-zumix/gh-rule-kit/internal/cmdcommon"
 )
 
-type ExportOptions struct {
-	Exporter cmdutil.Exporter
-}
-
-// NewExportCmd returns a new cobra.Command for exporting an organization ruleset
+// NewExportCmd returns a new cobra.Command for exporting an organization ruleset.
 func NewExportCmd() *cobra.Command {
-	var opts ExportOptions
-	var owner string
-	var output string
-
-	cmd := &cobra.Command{
-		Use:   "export <ruleset-id>",
-		Short: "Export an organization ruleset to JSON file",
-		Long:  `Export a specific organization ruleset by its ID to a JSON file. If org is not specified, the current repository's organization will be used. The exported JSON can be used for backup or to import into another organization.`,
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			rulesetID, err := strconv.ParseInt(args[0], 10, 64)
-			if err != nil {
-				return fmt.Errorf("invalid ruleset ID: %w", err)
-			}
-
-			repository, err := parser.Repository(parser.RepositoryOwner(owner))
-			if err != nil {
-				return fmt.Errorf("error parsing repository: %w", err)
-			}
-
-			client, err := gh.NewGitHubClientWithRepo(repository)
-			if err != nil {
-				return fmt.Errorf("failed to create GitHub client: %w", err)
-			}
-
-			ctx := cmd.Context()
-			ruleset, err := gh.GetOrgRuleset(ctx, client, repository, rulesetID)
-			if err != nil {
-				return fmt.Errorf("failed to get organization ruleset: %w", err)
-			}
-
-			config := gh.ExportRuleset(ruleset)
-			config.BypassActorsMeta = gh.BuildBypassActorsMeta(ctx, client, repository, ruleset)
-
-			renderer := render.NewRenderer(opts.Exporter)
-			if opts.Exporter != nil {
-				return renderer.RenderExportedData(config)
-			}
-
-			var jsonData []byte
-			jsonData, err = json.MarshalIndent(config, "", "  ")
-			if err != nil {
-				return fmt.Errorf("failed to marshal ruleset to JSON: %w", err)
-			}
-			if output == "" || output == "-" {
-				// Output to stdout
-				fmt.Println(string(jsonData))
-			} else {
-				// Output to file
-				err = os.WriteFile(output, jsonData, 0644)
-				if err != nil {
-					return fmt.Errorf("failed to write JSON to file: %w", err)
-				}
-				logger.Info("Export completed successfully.", "output", output)
-			}
-
-			return nil
-		},
-	}
-
-	f := cmd.Flags()
-	f.StringVar(&owner, "owner", "", "Specify the organization name")
-	f.StringVarP(&output, "output", "o", "", "Output file path (default: stdout)")
-	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
-	cmd.MarkFlagsMutuallyExclusive("output", "format")
-
-	return cmd
+	return cmdcommon.NewExportCmd(cmdcommon.NewOrgScope())
 }
