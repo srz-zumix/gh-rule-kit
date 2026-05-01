@@ -33,7 +33,7 @@ func NewImportCmd(s Scope) *cobra.Command {
 
 			repository, err := s.Parse()
 			if err != nil {
-				return fmt.Errorf("error parsing repository: %w", err)
+				return fmt.Errorf("error parsing %s: %w", s.Noun(), err)
 			}
 
 			var config *gh.RepositoryRulesetConfig
