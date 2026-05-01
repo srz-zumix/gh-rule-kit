@@ -75,7 +75,7 @@ func NewRepoScope() *RepoScope { return &RepoScope{} }
 func (s *RepoScope) Noun() string            { return "repository" }
 func (s *RepoScope) NounWithArticle() string { return "a repository" }
 func (s *RepoScope) NotSpecifiedHint() string {
-	return "If repo is not specified, the current repository will be used."
+	return "If --repo is not specified, the current repository will be used."
 }
 func (s *RepoScope) LabelKey() string                     { return "repository" }
 func (s *RepoScope) Label(r repository.Repository) string { return parser.GetRepositoryFullName(r) }
