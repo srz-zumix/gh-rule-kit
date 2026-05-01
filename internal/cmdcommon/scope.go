@@ -50,7 +50,7 @@ func NewOrgScope() *OrgScope { return &OrgScope{} }
 func (s *OrgScope) Noun() string            { return "organization" }
 func (s *OrgScope) NounWithArticle() string { return "an organization" }
 func (s *OrgScope) NotSpecifiedHint() string {
-	return "If org is not specified, the current repository's organization will be used."
+	return "If --owner is not specified, the current repository's organization will be used."
 }
 func (s *OrgScope) LabelKey() string                       { return "organization" }
 func (s *OrgScope) Label(r repository.Repository) string   { return r.Owner }
