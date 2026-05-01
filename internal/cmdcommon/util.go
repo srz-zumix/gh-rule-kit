@@ -9,7 +9,7 @@ import (
 func parseRulesetID(arg string) (int64, error) {
 	id, err := strconv.ParseInt(arg, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("invalid ruleset ID: %w", err)
+		return 0, fmt.Errorf("invalid ruleset ID %q: %w", arg, err)
 	}
 	return id, nil
 }
