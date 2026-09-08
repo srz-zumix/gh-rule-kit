@@ -210,7 +210,7 @@ The following branch protection settings are converted:
 **Options:**
 
 - `--delete`: Delete the original branch protection rule after successful conversion (default: false)
-- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
+- `-n, --dryrun`: Print the ruleset that would be created without actually creating it (default: false)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
 #### Convert a tag protection rule to a ruleset
@@ -219,7 +219,7 @@ The following branch protection settings are converted:
 gh rule-kit repo from-tag-protection <pattern> [-R <repo>] [-n] [--delete]
 ```
 
-Convert a tag protection rule to a repository ruleset and display the result. Use `--dry-run` (`-n`) to preview the converted ruleset without creating it.
+Convert a tag protection rule to a repository ruleset and display the result. Use `--dryrun` (`-n`) to preview the converted ruleset without creating it.
 
 The converted ruleset targets `refs/tags/<pattern>` and applies:
 
@@ -230,7 +230,7 @@ The converted ruleset targets `refs/tags/<pattern>` and applies:
 **Options:**
 
 - `--delete`: Delete the original tag protection rule after successful conversion (default: false)
-- `-n, --dry-run`: Print the ruleset that would be created without actually creating it (default: false)
+- `-n, --dryrun`: Print the ruleset that would be created without actually creating it (default: false)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
 
 ### Repository Rule Suite Insights
