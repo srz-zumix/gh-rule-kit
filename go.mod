@@ -3,7 +3,7 @@ module github.com/srz-zumix/gh-rule-kit
 go 1.27.3
 
 require (
-	github.com/cli/cli/v2 v2.103.0
+	github.com/cli/cli/v2 v2.103.2
 	github.com/cli/go-gh/v2 v2.17.0
 	github.com/spf13/cobra v1.10.2
 	github.com/srz-zumix/go-gh-extension v0.7.1
