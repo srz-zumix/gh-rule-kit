@@ -91,6 +91,9 @@ gh rule-kit repo list -R owner/repo
 
 # Include parent (organization) rulesets
 gh rule-kit repo list -p
+
+# Show selected rules and their settings for each ruleset
+gh rule-kit repo list --rule pull_request,required_signatures
 ```
 
 ### `get`
@@ -322,6 +325,9 @@ gh rule-kit org list
 
 # Specify owner
 gh rule-kit org list --owner myorg
+
+# Show selected rules and their settings for each ruleset
+gh rule-kit org list --owner myorg --rule pull_request,required_signatures
 ```
 
 ### `get`

@@ -12,6 +12,9 @@ gh extension install srz-zumix/gh-rule-kit
 
 **Workaround Available!** While gh CLI doesn't natively support extension completion, we provide a patch script that enables it.
 
+The `--rule` option supports completion for rule types, including repeated and
+comma-separated values.
+
 **Prerequisites:** Before setting up gh-rule-kit completion, ensure gh CLI completion is configured for your shell. See [gh completion documentation](https://cli.github.com/manual/gh_completion) for setup instructions.
 
 For detailed installation instructions and setup for each shell, see the [Shell Completion Guide](https://github.com/srz-zumix/go-gh-extension/blob/main/docs/shell-completion.md).
@@ -159,15 +162,23 @@ Import a repository ruleset from a JSON file. If repo is not specified, the curr
 #### List repository rulesets
 
 ```sh
-gh rule-kit repo list [-R <repo>] [-p]
+gh rule-kit repo list [-R <repo>] [-p] [--rule <type>[,<type>...]] [--format json [-q <expression> | -t <template>]]
 ```
 
-List all rulesets for a repository. If repo is not specified, the current repository will be used.
+List all rulesets for a repository. If repo is not specified, the current repository will be used. Use `--rule` to show selected rule settings for each ruleset.
 
 **Options:**
 
+- `--format json`: Output JSON (optional; default: table)
 - `-p, --includes-parent`: Include parent rulesets (default: false)
+- `-q, --jq <expression>`: Filter JSON output (optional; requires `--format json`)
 - `-R, --repo <repo>`: The repository in the format 'owner/repo' (optional, defaults to current repository)
+- `--rule <type>[,<type>...]`: Show the configured state and parameters for selected rule types; repeatable (optional, default: summary only)
+- `-t, --template <template>`: Format JSON output using a Go template (optional; requires `--format json`)
+
+For example, `gh rule-kit repo list --rule pull_request,required_signatures` shows those rules for each ruleset. Rule types use GitHub API names; an invalid type prints the available names. Rule details require one additional API request per ruleset. A rule's configured state is separate from the ruleset's enforcement status. Parameter fields are limited to those supported by the GitHub client.
+
+Supported rule types: `branch_name_pattern`, `code_coverage`, `code_scanning`, `commit_author_email_pattern`, `commit_message_pattern`, `committer_email_pattern`, `copilot_code_review`, `creation`, `deletion`, `file_extension_restriction`, `file_path_restriction`, `max_file_path_length`, `max_file_size`, `merge_queue`, `non_fast_forward`, `pull_request`, `repository_create`, `repository_delete`, `repository_name`, `repository_transfer`, `repository_visibility`, `required_deployments`, `required_linear_history`, `required_signatures`, `required_status_checks`, `tag_name_pattern`, `update`, and `workflows`.
 
 #### Migrate repository rulesets to another repository
 
@@ -272,14 +283,20 @@ Get detailed information about a specific repository rule suite by its ID. If re
 #### List organization rulesets
 
 ```sh
-gh rule-kit org list [--owner <owner>]
+gh rule-kit org list [--owner <owner>] [--rule <type>[,<type>...]] [--format json [-q <expression> | -t <template>]]
 ```
 
-List all rulesets for an organization. If org is not specified, the current repository's organization will be used.
+List all rulesets for an organization. If org is not specified, the current repository's organization will be used. Use `--rule` to show selected rule settings for each ruleset.
 
 **Options:**
 
+- `--format json`: Output JSON (optional; default: table)
+- `-q, --jq <expression>`: Filter JSON output (optional; requires `--format json`)
 - `--owner <owner>`: The organization name (optional, defaults to current repository's organization)
+- `--rule <type>[,<type>...]`: Show the configured state and parameters for selected rule types; repeatable (optional, default: summary only)
+- `-t, --template <template>`: Format JSON output using a Go template (optional; requires `--format json`)
+
+For example, `gh rule-kit org list --rule pull_request,required_signatures` shows those rules for each ruleset. See [repository list](#list-repository-rulesets) for supported rule types. Rule details require one additional API request per ruleset. A rule's configured state is separate from the ruleset's enforcement status. Parameter fields are limited to those supported by the GitHub client.
 
 #### Get an organization ruleset
 
